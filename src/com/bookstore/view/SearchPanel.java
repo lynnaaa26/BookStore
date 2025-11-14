@@ -1,109 +1,138 @@
 package com.bookstore.view;
-
 import javax.swing.*;
 import java.awt.*;
-
 public class SearchPanel extends JPanel {
-
     public SearchPanel(MainFrame frame) {
-    	
-    	
-    	 setBackground(new Color(250, 250, 245)); 
+    
+    
+    	 setBackground(new Color(250, 250, 245));
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
         //--------- search bar + categories --------------
         JPanel northPanel = new JPanel();
         northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS)); // vertical stack
-
         // search bar panel
         JPanel searchPanel = new JPanel(new BorderLayout(10, 0));
         JTextField searchField = new JTextField("Search books...");
+        searchField.setFont(new Font("Serif", Font.PLAIN, 14));
         JButton searchBtn = new JButton("🔍");
+        searchBtn.setFont(new Font("Serif", Font.PLAIN, 16));
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchBtn, BorderLayout.EAST);
         northPanel.add(searchPanel);
         northPanel.add(Box.createVerticalStrut(10)); // spacing
-
-        //  categories
+        // categories
         JPanel catPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         JLabel catTitle = new JLabel("Find your next favorite story...");
-        catTitle.setFont(new Font("SansSerif", Font.BOLD, 16));
+        catTitle.setFont(new Font("Serif", Font.BOLD, 16));
         catPanel.add(catTitle);
-
         String[] categories = {"Classics", "Horror", "History", "Fiction", "Self-help",
                                "Romance", "Religion", "Biography", "Science", "Adventure"};
         for (String c : categories) {
             JButton catBtn = new JButton(c);
-            catBtn.setPreferredSize(new Dimension(95, 25)); // 
+            catBtn.setPreferredSize(new Dimension(95, 25)); //
+            catBtn.setFont(new Font("Serif", Font.BOLD, 11));
+            catBtn.addActionListener(e -> {
+                // Simulate search; for now, navigate to BOOKS
+                frame.navigateTo("BOOKS");
+            });
             catPanel.add(catBtn);
         }
         northPanel.add(catPanel);
-
         add(northPanel, BorderLayout.NORTH);
-
         //---------------- best sellers ---------------
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         JLabel bestLabel = new JLabel("★ Best Sellers of the Month ★");
         bestLabel.setFont(new Font("Serif", Font.BOLD, 20));
         bestLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(bestLabel);
         centerPanel.add(Box.createVerticalStrut(15));
-
-        //  books
-        JPanel booksContainer = new JPanel(new GridLayout(1, 2, 20, 0));
-
+        // books
         String[][] bestsellers = {
-                {"The Yellow Wallpaper", "1000 DZD"},
-                {"To Kill A Mockingbird", "1500 DZD"}
+                {"The Yellow Wallpaper", "Charlotte Perkins Gilman", "1000 DZD", "yellow.jpg"},
+                {"To Kill A Mockingbird", "Harper Lee", "1500 DZD", "mockingbird.jpg"},
+                {"Sense and Sensibility", "Jane Austen", "1300 DZD", "sense.jpg"}
         };
-
+        JLabel bestSellersTitle = new JLabel("Best Sellers of the Month!");
+        bestSellersTitle.setFont(new Font("Serif", Font.BOLD, 16));
+        bestSellersTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(bestSellersTitle);
+        centerPanel.add(Box.createVerticalStrut(10));
+        // Horizontal layout for three books
+        JPanel booksRow = new JPanel(new GridLayout(1, 3, 10, 0));
         for (String[] b : bestsellers) {
             JPanel bookPanel = new JPanel();
             bookPanel.setLayout(new BoxLayout(bookPanel, BoxLayout.Y_AXIS));
             bookPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
             bookPanel.setBackground(Color.WHITE);
             bookPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            bookPanel.setPreferredSize(new Dimension(90, 150)); 
-
-            // image placeholder (smaller)
-            JPanel imagePlaceholder = new JPanel();
-            imagePlaceholder.setPreferredSize(new Dimension(50, 50)); 
-            imagePlaceholder.setBackground(Color.LIGHT_GRAY);
-            imagePlaceholder.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            bookPanel.setPreferredSize(new Dimension(120, 220));
+            bookPanel.setMaximumSize(new Dimension(120, 220));
+            // Make bookPanel clickable
+            bookPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    frame.navigateTo("BOOKS");
+                }
+            });
+            bookPanel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            // image placeholder
+            JLabel imagePlaceholder = new JLabel();
             imagePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
+            imagePlaceholder.setPreferredSize(new Dimension(100, 140));
+            imagePlaceholder.setMaximumSize(new Dimension(100, 140));
+            imagePlaceholder.setHorizontalAlignment(SwingConstants.CENTER);
+            // Load image
+            ImageIcon icon = null;
+            try {
+                icon = new ImageIcon(getClass().getResource("/images/" + b[3]));
+            } catch (Exception e) {
+                System.out.println("Image not found: " + b[3]);
+            }
+            if (icon != null && icon.getIconWidth() > 0) {
+                Image scaledImage = icon.getImage().getScaledInstance(100, 140, Image.SCALE_SMOOTH);
+                imagePlaceholder.setIcon(new ImageIcon(scaledImage));
+                imagePlaceholder.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            } else {
+                imagePlaceholder.setText("No Image");
+                imagePlaceholder.setBackground(Color.LIGHT_GRAY);
+                imagePlaceholder.setOpaque(true);
+                imagePlaceholder.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            }
             bookPanel.add(imagePlaceholder);
-
+            bookPanel.add(Box.createVerticalStrut(5));
             JLabel titleLabel = new JLabel(b[0]);
+            titleLabel.setFont(new Font("Serif", Font.BOLD, 12));
             titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             bookPanel.add(titleLabel);
-
-            JLabel priceLabel = new JLabel(b[1]);
+            JLabel authorLabel = new JLabel("Author: " + b[1]);
+            authorLabel.setFont(new Font("Serif", Font.ITALIC, 11));
+            authorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            bookPanel.add(authorLabel);
+            JLabel priceLabel = new JLabel(b[2]);
+            priceLabel.setFont(new Font("Serif", Font.PLAIN, 11));
             priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             bookPanel.add(priceLabel);
-
             JLabel ratingLabel = new JLabel("★★★★★");
+            ratingLabel.setFont(new Font("Serif", Font.PLAIN, 11));
             ratingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             bookPanel.add(ratingLabel);
-
+            bookPanel.add(Box.createVerticalStrut(5));
             JButton addBtn = new JButton("Add");
-            addBtn.setFont(new Font("SansSerif", Font.PLAIN, 10)); //
+            addBtn.setFont(new Font("Serif", Font.BOLD, 10)); //
             addBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+            addBtn.addActionListener(e -> frame.navigateTo("CART"));
             bookPanel.add(addBtn);
-
-            booksContainer.add(bookPanel);
+            booksRow.add(bookPanel);
         }
-
-        centerPanel.add(booksContainer);
+        centerPanel.add(booksRow);
         centerPanel.add(Box.createVerticalStrut(20));
         add(centerPanel, BorderLayout.CENTER);
-
         //----------------back button ----------------
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton backBtn = new JButton("← Back to Home");
+        backBtn.setFont(new Font("Serif", Font.PLAIN, 14));
         backBtn.addActionListener(e -> frame.navigateTo("HOME"));
         footer.add(backBtn);
         add(footer, BorderLayout.SOUTH);
