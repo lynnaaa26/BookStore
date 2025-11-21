@@ -243,6 +243,13 @@ public class CartPanel extends JPanel {
         priceLabel.setForeground(new Color(0, 140, 0));
         priceLabel.setBounds(640, 60, 120, 35);
         productPanel.add(priceLabel);
+        
+        JLabel availabilityLabel = new JLabel("Available: 20");
+        availabilityLabel.setFont(new Font("Serif", Font.PLAIN, 14));
+        availabilityLabel.setForeground(new Color(150, 75, 0));
+        availabilityLabel.setBounds(640, 100, 120, 25); // position it below the price
+        productPanel.add(availabilityLabel);
+
 
         // Delete Button (tied to controller)
         JButton deleteBtn = new JButton("X");
