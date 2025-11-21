@@ -1,53 +1,78 @@
-// what u see
 package com.bookstore.view;
 
+import com.bookstore.model.Cart;
+import com.bookController.BookController;
+import com.bookController.CartController;
 
 import javax.swing.*;
 import java.awt.*;
 
+public class MainFrame extends JFrame {
 
-public class MainFrame extends JFrame  {
-	
-	// cardLayout allows switching between diff panels like pages
-	private CardLayout cardLayout;
-	private JPanel mainPanel;
-	
-	// construct the main window applications screen 
-	
-	public MainFrame() {
-		setTitle("Bookstore");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(800,600);
-		setLocationRelativeTo(null); // centre a window
-		
-		
-		cardLayout = new CardLayout(); // create a new instance of the cardlayout class let u stack multiple panels
-		mainPanel = new JPanel(cardLayout); // create a new jpanel means it special panel can hold multiple other  panels but will show only one at time 
-		
-		
-		mainPanel.add(new HomePanel(this),"HOME"); 
-		mainPanel.add(new BookPanel(this),"BOOKS"); 
-		mainPanel.add(new CartPanel(this),"CART");
-		mainPanel.add(new WishlistPanel(this),"WISHLIST");
-		mainPanel.add(new OrderFormPanel(this),"ORDERFORM");
-		mainPanel.add(new SearchPanel(this),"SEARCH");
-		
-		
-		
-		setContentPane(mainPanel);
-		navigateTo("HOME");
-		
-	}
-	
-	public void navigateTo(String panelName) {
-		// switching based on the given name 
-		cardLayout.show(mainPanel, panelName);
-	}
-	
-	public static void main (String[] args) {
-		SwingUtilities.invokeLater( () -> new MainFrame().setVisible(true));
-	}
-	
+    // Shared instances
+    private Cart sharedCart;
+    private BookController bookController;
+    private CartController cartController;
+    private CartPanel cartPanel;
 
+    // CardLayout for navigation
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
 
+    public MainFrame() {
+        // 1. Initialize shared instances first
+        sharedCart = new Cart();
+        bookController = new BookController();
+        cartController = new CartController(sharedCart);
+
+        // 2. Initialize CartPanel with the frame (now cart is not null)
+        cartPanel = new CartPanel(this);
+
+        // 3. Initialize CardLayout and main panel
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        // 4. Add panels (pass frame; use single instance of CartPanel)
+        mainPanel.add(new HomePanel(this), "HOME");
+        mainPanel.add(new BookPanel(this), "BOOKS");
+        mainPanel.add(cartPanel, "CART");
+        mainPanel.add(new WishlistPanel(this), "WISHLIST");
+        mainPanel.add(new OrderFormPanel(this), "ORDERFORM");
+        mainPanel.add(new SearchPanel(this), "SEARCH");
+
+        // 5. Setup JFrame
+        setContentPane(mainPanel);
+        setTitle("Bookstore");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 700);
+        setLocationRelativeTo(null);
+
+        // 6. Show default panel
+        navigateTo("HOME");
+    }
+
+    /**
+     * Navigate to a panel by name
+     */
+    public void navigateTo(String panelName) {
+        cardLayout.show(mainPanel, panelName);
+    }
+
+    /**
+     * Refresh cart panel content
+     */
+    public void refreshCartPanel() {
+        if (cartPanel != null) {
+            cartPanel.updateCartDisplay(); // reload items
+        }
+    }
+
+    // Getters for shared instances
+    public Cart getCart() { return sharedCart; }
+    public BookController getBookController() { return bookController; }
+    public CartController getCartController() { return cartController; }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
+    }
 }

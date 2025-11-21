@@ -1,10 +1,19 @@
 package com.bookstore.view;
+
+import com.bookstore.model.Book;
+import com.bookController.BookController;
+
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL; // For resource loading
+import java.net.URL;
+import java.util.List;
+import java.util.Optional;
 
 public class BookPanel extends JPanel {
+    private BookController bookController;
+
     public BookPanel(MainFrame frame) {
+        bookController = frame.getBookController();
         setLayout(new BorderLayout());
         setBackground(new Color(245, 245, 220)); // Beige background
         JPanel header = new JPanel(new BorderLayout());
@@ -58,20 +67,18 @@ public class BookPanel extends JPanel {
         JPanel mainBookPanel = new JPanel(new BorderLayout(20, 0));
         mainBookPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         mainBookPanel.setBackground(new Color(245, 245, 220)); // Beige
+        // Demo main book (ID 1)
+        Optional<Book> optionalMainBook = bookController.getBookById(1);
+        Book mainBook = optionalMainBook.orElse(null);
+        if (mainBook == null) {
+            mainBook = new Book(1, "The Yellow Wallpaper", "Charlotte Perkins Gilman", 1000, "/imagess/yellow.jpg");
+        }
         // Main book image
         JLabel mainImageLabel = new JLabel();
         mainImageLabel.setPreferredSize(new Dimension(150, 200));
         mainImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        // Load main book image ("The Yellow Wallpaper")
-        ImageIcon mainIcon = null;
-        try {
-            URL imageUrl = getClass().getResource("/imagess/yellow.jpg");
-            if (imageUrl != null) {
-                mainIcon = new ImageIcon(imageUrl);
-            }
-        } catch (Exception e) {
-            System.out.println("Main image not found: yellow.jpg");
-        }
+        // Load main book image
+        ImageIcon mainIcon = loadBookImage(mainBook.getImagePath());
         if (mainIcon != null && mainIcon.getIconWidth() > 0) {
             Image scaledMainImage = mainIcon.getImage().getScaledInstance(150, 200, Image.SCALE_SMOOTH);
             mainImageLabel.setIcon(new ImageIcon(scaledMainImage));
@@ -93,10 +100,10 @@ public class BookPanel extends JPanel {
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(Color.WHITE);
-        JLabel titleLabel = new JLabel("The Yellow Wallpaper");
+        JLabel titleLabel = new JLabel(mainBook.getTitle());
         titleLabel.setFont(new Font("Serif", Font.BOLD, 20));
         titleLabel.setForeground(new Color(101, 67, 33)); // Saddle brown
-        JLabel priceLabel = new JLabel("1000 DZD");
+        JLabel priceLabel = new JLabel(mainBook.getPrice() + " DZD");
         priceLabel.setFont(new Font("Serif", Font.PLAIN, 16));
         priceLabel.setForeground(new Color(34, 139, 34)); // Green for price
         JTextArea desc = new JTextArea(
@@ -112,8 +119,24 @@ public class BookPanel extends JPanel {
         // Boutons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
+        // Capture mainBook for lambda (as before)
+        final Book finalMainBook = mainBook;
         JButton addToCart = new JButton("ADD TO CART");
-        addToCart.addActionListener(e -> frame.navigateTo("CART"));
+        addToCart.addActionListener(e -> {
+            frame.getCartController().addToCart(finalMainBook, 1);
+            frame.refreshCartPanel();
+            // New: Confirm and navigate to Cart
+            int choice = JOptionPane.showConfirmDialog(
+                this, 
+                "Added " + finalMainBook.getTitle() + " to cart!\nGo to Cart now?", 
+                "Success", 
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            if (choice == JOptionPane.YES_OPTION) {
+                frame.navigateTo("CART");
+            }
+        });
         addToCart.setFont(new Font("Serif", Font.BOLD, 12));
         addToCart.setBackground(new Color(220, 220, 200)); // Light beige
         addToCart.setForeground(new Color(101, 67, 33)); // Saddle brown text
@@ -144,16 +167,11 @@ public class BookPanel extends JPanel {
         moreLabel.setForeground(new Color(101, 67, 33));
         JPanel booksList = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
         booksList.setBackground(new Color(245, 245, 220)); // Beige
-        // More books data with filenames (map titles to images)
-        String[][] moreBooks = {
-            {"To Kill a Mockingbird", "1500 DZD", "mockingbird.jpg"},
-            {"Have Always Lived Castle", "1000 DZD", "we castle.jpg"}, 
-            {"Mrs Dalloway", "1200 DZD", "d.jpg"}, 
-            {"Frankenstein: The 1818 TEXT", "2000 DZD", "f.jpg"}, 
-            {"Fahrenheit", "2000 DZD", "451.jpg"} 
-        };
-        for (String[] b : moreBooks) {
-            JPanel bookCard = createBookCard(b[0], b[1], b[2], frame);
+        // Fetch more books (e.g., next 5 after main)
+        List<Book> allBooks = bookController.getAllBooks();
+        List<Book> moreBooks = allBooks.subList(1, Math.min(6, allBooks.size())); // Skip ID 1
+        for (Book b : moreBooks) {
+            JPanel bookCard = createBookCard(b, frame);
             booksList.add(bookCard);
         }
         moreBooksPanel.add(moreLabel, BorderLayout.NORTH);
@@ -166,18 +184,7 @@ public class BookPanel extends JPanel {
         add(content, BorderLayout.CENTER);
     }
 
-    private static JButton createHeaderButton(String text) {
-        JButton b = new JButton(text);
-        b.setFont(new Font("Serif", Font.PLAIN, 18));
-        b.setFocusable(false);
-        b.setBorderPainted(false);
-        b.setContentAreaFilled(false);
-        b.setOpaque(false);
-        b.setPreferredSize(new Dimension(40, 30));
-        return b;
-    }
-
-    private JPanel createBookCard(String title, String price, String imageFile, MainFrame frame) {
+    private JPanel createBookCard(Book b, MainFrame frame) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setPreferredSize(new Dimension(150, 230));
@@ -196,15 +203,7 @@ public class BookPanel extends JPanel {
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
         // Load image
-        ImageIcon icon = null;
-        try {
-            URL imageUrl = getClass().getResource("/imagess/" + imageFile);
-            if (imageUrl != null) {
-                icon = new ImageIcon(imageUrl);
-            }
-        } catch (Exception e) {
-            System.out.println("More book image not found: " + imageFile);
-        }
+        ImageIcon icon = loadBookImage(b.getImagePath());
         if (icon != null && icon.getIconWidth() > 0) {
             Image scaledImage = icon.getImage().getScaledInstance(130, 160, Image.SCALE_SMOOTH);
             imgLabel.setIcon(new ImageIcon(scaledImage));
@@ -218,11 +217,34 @@ public class BookPanel extends JPanel {
         card.add(Box.createVerticalStrut(10));
         card.add(imgLabel);
         card.add(Box.createVerticalStrut(10));
-        JLabel label = new JLabel("<html><center>" + title.replaceAll("\n", "<br/>") + "<br/>" + price + "</center></html>");
+        JLabel label = new JLabel("<html><center>" + b.getTitle().replaceAll("\n", "<br/>") + "<br/>" + b.getPrice() + " DZD" + "</center></html>");
         label.setFont(new Font("Serif", Font.PLAIN, 13));
         label.setForeground(new Color(101, 67, 33));
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         card.add(label);
         return card;
+    }
+
+    private ImageIcon loadBookImage(String path) {
+        try {
+            URL imageUrl = getClass().getResource(path);
+            if (imageUrl != null) {
+                return new ImageIcon(imageUrl);
+            }
+        } catch (Exception e) {
+            System.out.println("More book image not found: " + path);
+        }
+        return null;
+    }
+
+    private static JButton createHeaderButton(String text) {
+        JButton b = new JButton(text);
+        b.setFont(new Font("Serif", Font.PLAIN, 18));
+        b.setFocusable(false);
+        b.setBorderPainted(false);
+        b.setContentAreaFilled(false);
+        b.setOpaque(false);
+        b.setPreferredSize(new Dimension(40, 30));
+        return b;
     }
 }
