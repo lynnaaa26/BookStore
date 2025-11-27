@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-
 public class CartPanel extends JPanel {
 
     // Model and Controller instances
@@ -24,102 +23,75 @@ public class CartPanel extends JPanel {
     private BookController bookController;
 
     // UI Components for updates
-    private JLabel totalCartLabel;
+    private JLabel subtotalLabel;
     private JLabel totalLabel;
     private JPanel itemsContainer; // Scrollable container for dynamic product panels
     private List<JLabel> quantityLabels = new ArrayList<>(); // Track per-item quantity labels for updates
 
     public CartPanel(MainFrame frame) {
-    	 this.cartController = frame.getCartController();   
-    	    this.cart = frame.getCart(); 
-    	    this.bookController = frame.getBookController();
-
+        this.cartController = frame.getCartController();
+        this.cart = frame.getCart();
+        this.bookController = frame.getBookController();
 
         setBackground(new Color(246, 245, 222));
-        setLayout(new BorderLayout()); // Changed to BorderLayout for better scrolling
+        setLayout(new BorderLayout()); // BorderLayout for overall structure
 
-        // Title
+        // Title Panel with enhanced styling
         JLabel cartTitle = new JLabel("YOUR SHOPPING CART");
         cartTitle.setFont(new Font("Serif", Font.BOLD, 28));
         cartTitle.setForeground(new Color(100, 70, 30));
         cartTitle.setHorizontalAlignment(SwingConstants.CENTER);
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         titlePanel.setBackground(new Color(246, 245, 222));
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
         titlePanel.add(cartTitle);
         add(titlePanel, BorderLayout.NORTH);
 
-        // Headers (above scrollable items)
-        JPanel headersPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        headersPanel.setBackground(new Color(246, 245, 222));
-        headersPanel.setBorder(BorderFactory.createEmptyBorder(10, 40, 10, 40));
-        JLabel lblBook = new JLabel("Book");
-        lblBook.setFont(new Font("Serif", Font.BOLD, 18));
-        lblBook.setPreferredSize(new Dimension(200, 30));
-        JLabel lblQty = new JLabel("Quantity");
-        lblQty.setFont(new Font("Serif", Font.BOLD, 18));
-        lblQty.setPreferredSize(new Dimension(150, 30));
-        JLabel lblPrice = new JLabel("Price");
-        lblPrice.setFont(new Font("Serif", Font.BOLD, 18));
-        lblPrice.setPreferredSize(new Dimension(100, 30));
-        JLabel lblActions = new JLabel("Actions");
-        lblActions.setFont(new Font("Serif", Font.BOLD, 18));
-        lblActions.setPreferredSize(new Dimension(150, 30));
-        headersPanel.add(lblBook);
-        headersPanel.add(Box.createHorizontalStrut(50));
-        headersPanel.add(lblQty);
-        headersPanel.add(Box.createHorizontalStrut(50));
-        headersPanel.add(lblPrice);
-        headersPanel.add(Box.createHorizontalStrut(50));
-        headersPanel.add(lblActions);
-        add(headersPanel, BorderLayout.NORTH);
-
-        // Scrollable container for cart items
+        // Scrollable container for cart items with enhanced scrolling
         itemsContainer = new JPanel();
         itemsContainer.setLayout(new BoxLayout(itemsContainer, BoxLayout.Y_AXIS));
         itemsContainer.setBackground(Color.WHITE);
         JScrollPane scrollPane = new JScrollPane(itemsContainer);
-        scrollPane.setPreferredSize(new Dimension(900, 200));
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setPreferredSize(new Dimension(900, 250));
+        scrollPane.setBorder(BorderFactory.createLoweredBevelBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
         add(scrollPane, BorderLayout.CENTER);
 
-        // -------------- TOTALS ----------------
-        JPanel totalsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // Totals Panel with better alignment and styling
+        JPanel totalsPanel = new JPanel(new GridBagLayout());
         totalsPanel.setBackground(new Color(246, 245, 222));
         totalsPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 10, 40));
+        GridBagConstraints tgbc = new GridBagConstraints();
+        tgbc.anchor = GridBagConstraints.EAST;
+        tgbc.insets = new Insets(2, 0, 2, 0);
 
-        totalCartLabel = new JLabel(""); // Will be set in updateTotals
-        totalCartLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        subtotalLabel = new JLabel(""); // Will be set in updateTotals
+        subtotalLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        tgbc.gridx = 0;
+        tgbc.gridy = 0;
+        totalsPanel.add(subtotalLabel, tgbc);
+
         JLabel deliveryLabel = new JLabel("Delivery costs : " + Cart.DELIVERY_COST + " DZD"); // Use constant from model
         deliveryLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        tgbc.gridy = 1;
+        totalsPanel.add(deliveryLabel, tgbc);
+
         totalLabel = new JLabel(""); // Will be set in updateTotals
         totalLabel.setFont(new Font("Serif", Font.BOLD, 24));
         totalLabel.setForeground(new Color(0, 150, 0));
-
-        totalsPanel.add(totalCartLabel);
-        totalsPanel.add(Box.createVerticalStrut(5));
-        totalsPanel.add(deliveryLabel);
-        totalsPanel.add(Box.createVerticalStrut(5));
-        totalsPanel.add(totalLabel);
+        tgbc.gridy = 2;
+        totalsPanel.add(totalLabel, tgbc);
         add(totalsPanel, BorderLayout.SOUTH);
 
-        // Initial load and update
-        loadCartItems();
-        updateTotals();
-
-        // ---------------- Buttons at the Bottom ----------------
+     // Buttons Panel with enhanced button styling
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(new Color(246, 245, 222));
-        JButton continueBtn = new JButton("Continue Shopping");
-        continueBtn.setFont(new Font("Serif", Font.PLAIN, 14));
-        continueBtn.setBackground(new Color(220, 220, 200));
-        continueBtn.setForeground(new Color(101, 67, 33));
-        continueBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0));
+
+        JButton continueBtn = createStyledButton("CONTINUE SHOPPING", false);
         continueBtn.addActionListener(e -> frame.navigateTo("HOME"));
-        JButton confirmBtn = new JButton("Confirm");
-        confirmBtn.setFont(new Font("Serif", Font.BOLD, 14));
-        confirmBtn.setBackground(new Color(220, 220, 200));
-        confirmBtn.setForeground(new Color(101, 67, 33));
-        confirmBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1));
+
+        JButton confirmBtn = createStyledButton("CONFIRM", true);
         confirmBtn.addActionListener(e -> {
             if (!cart.isEmpty()) {
                 frame.navigateTo("ORDERFORM");
@@ -127,10 +99,42 @@ public class CartPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Cart is empty!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
         buttonPanel.add(continueBtn);
         buttonPanel.add(Box.createHorizontalStrut(20));
         buttonPanel.add(confirmBtn);
-        add(buttonPanel, BorderLayout.SOUTH);
+
+        // combine totalsPanel and buttonPanel into a single south panel
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BorderLayout());
+        southPanel.setBackground(new Color(246, 245, 222));
+        southPanel.add(totalsPanel, BorderLayout.NORTH);
+        southPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(southPanel, BorderLayout.SOUTH);
+
+        // Initial load and update
+        loadCartItems();
+        updateTotals();
+    }
+
+    /**
+     * Creates a styled button with consistent theme.
+     */
+    private JButton createStyledButton(String text, boolean isBold) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Serif", isBold ? Font.BOLD : Font.PLAIN, 14));
+        btn.setBackground(new Color(220, 220, 200));
+        btn.setForeground(new Color(101, 67, 33));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 180), 1),
+            BorderFactory.createEmptyBorder(8, 16, 8, 16)
+        ));
+        btn.setFocusPainted(false);
+        btn.setRolloverEnabled(true);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
+        return btn;
     }
 
     /**
@@ -146,6 +150,7 @@ public class CartPanel extends JPanel {
             emptyLabel.setFont(new Font("Serif", Font.PLAIN, 16));
             emptyLabel.setForeground(new Color(100, 70, 30));
             emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            emptyLabel.setBorder(BorderFactory.createEmptyBorder(40, 0, 40, 0));
             itemsContainer.add(emptyLabel);
         } else {
             // Get all book IDs with qty > 0
@@ -158,31 +163,41 @@ public class CartPanel extends JPanel {
                 if (book != null) {
                     JPanel productPanel = createProductPanel(book, quantities.get(bookId));
                     itemsContainer.add(productPanel);
-                    itemsContainer.add(Box.createVerticalStrut(10)); // Spacing between items
+                    itemsContainer.add(Box.createVerticalStrut(15)); // Enhanced spacing between items
                 }
             }
         }
         revalidate();
         repaint();
+        SwingUtilities.invokeLater(() -> itemsContainer.getParent().revalidate());
     }
 
     /**
-     * Creates a single product panel for a book in cart.
+     * Creates a single product panel for a book in cart using GridBagLayout for better responsiveness.
      */
     private JPanel createProductPanel(Book book, int initialQty) {
-        JPanel productPanel = new JPanel();
-        productPanel.setLayout(null);
+        JPanel productPanel = new JPanel(new GridBagLayout());
         productPanel.setBackground(Color.WHITE);
-        productPanel.setBorder(new LineBorder(new Color(210, 210, 180), 2));
-        productPanel.setPreferredSize(new Dimension(900, 180));
+        productPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(210, 210, 180), 2),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+        productPanel.setMinimumSize(new Dimension(800, 180));
         productPanel.setMaximumSize(new Dimension(900, 180));
 
-        // Image Panel
-        JPanel imagePanel = new JPanel();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 10);
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.weightx = 0;
+
+        // Image Panel with rounded corners simulation
+        JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(new Color(235, 235, 210));
-        imagePanel.setBorder(new LineBorder(new Color(200, 200, 170)));
-        imagePanel.setBounds(20, 20, 120, 140);
-        imagePanel.setLayout(null);
+        imagePanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 170)));
+        imagePanel.setMinimumSize(new Dimension(120, 140));
+        imagePanel.setMaximumSize(new Dimension(120, 140));
+        imagePanel.setPreferredSize(new Dimension(120, 140));
 
         // Load image dynamically from book model
         URL imageUrl = getClass().getResource(book.getImagePath());
@@ -191,78 +206,160 @@ public class CartPanel extends JPanel {
             Image scaledImage = icon.getImage().getScaledInstance(120, 140, Image.SCALE_SMOOTH);
             ImageIcon scaledIcon = new ImageIcon(scaledImage);
             JLabel imageLabel = new JLabel(scaledIcon);
-            imageLabel.setBounds(0, 0, 120, 140);
-            imagePanel.add(imageLabel);
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+            imagePanel.add(imageLabel, BorderLayout.CENTER);
         } else {
             JLabel placeholderLabel = new JLabel("No Image");
             placeholderLabel.setHorizontalAlignment(SwingConstants.CENTER);
             placeholderLabel.setVerticalAlignment(SwingConstants.CENTER);
-            placeholderLabel.setBounds(0, 0, 120, 140);
-            imagePanel.add(placeholderLabel);
+            placeholderLabel.setFont(new Font("Serif", Font.BOLD, 12));
+            placeholderLabel.setForeground(new Color(120, 70, 40));
+            imagePanel.add(placeholderLabel, BorderLayout.CENTER);
         }
-        productPanel.add(imagePanel);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridheight = 4;
+        productPanel.add(imagePanel, gbc);
 
         // Title and Author from model
         JLabel bookTitle = new JLabel(book.getTitle());
         bookTitle.setFont(new Font("Serif", Font.BOLD, 20));
-        bookTitle.setBounds(160, 30, 300, 30);
-        productPanel.add(bookTitle);
+        bookTitle.setForeground(new Color(80, 50, 20));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridheight = 1;
+        gbc.insets = new Insets(0, 10, 5, 10);
+        gbc.weightx = 0.6;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        productPanel.add(bookTitle, gbc);
 
         JLabel bookAuthor = new JLabel("Author: " + book.getAuthor());
         bookAuthor.setFont(new Font("Serif", Font.ITALIC, 16));
         bookAuthor.setForeground(new Color(120, 70, 40));
-        bookAuthor.setBounds(160, 65, 350, 30);
-        productPanel.add(bookAuthor);
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 10, 10, 10);
+        gbc.weightx = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        productPanel.add(bookAuthor, gbc);
 
-        // Quantity Buttons (tied to controller)
+     // Quantity Controls Panel
+        JPanel qtyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        qtyPanel.setBackground(Color.WHITE);
+        qtyPanel.setPreferredSize(new Dimension(160, 40));
+        qtyPanel.setMinimumSize(new Dimension(160, 40));
+        qtyPanel.setMaximumSize(new Dimension(160, 40));
+
+        JLabel qtyLabel = new JLabel(String.valueOf(cart.getQuantity(book.getId())), SwingConstants.CENTER);
+        qtyLabel.setFont(new Font("Dialog", Font.BOLD, 18));
+        qtyLabel.setPreferredSize(new Dimension(50, 40));
+        qtyLabel.setMinimumSize(new Dimension(50, 40));
+        qtyLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180)));
+        qtyLabel.setOpaque(true);
+        qtyLabel.setBackground(Color.WHITE);
+
         JButton minusBtn = new JButton("-");
-        minusBtn.setBounds(450, 60, 50, 35);
-        minusBtn.addActionListener(e -> {
-            cartController.decreaseQuantity(book);
-            updateCartDisplay();
-        });
-        productPanel.add(minusBtn);
-
-        JLabel qtyLabel = new JLabel(String.valueOf(initialQty), SwingConstants.CENTER);
-        qtyLabel.setFont(new Font("Serif", Font.BOLD, 18));
-        qtyLabel.setBounds(505, 60, 40, 35);
-        productPanel.add(qtyLabel);
-        quantityLabels.add(qtyLabel); // Track for updates
-
         JButton plusBtn = new JButton("+");
-        plusBtn.setBounds(550, 60, 50, 35);
-        plusBtn.addActionListener(e -> {
-            cartController.increaseQuantity(book);
+
+        // style buttons properly
+        styleQuantityButton(minusBtn);
+        styleQuantityButton(plusBtn);
+
+        // add action listeners
+        minusBtn.addActionListener(e -> {
+            System.out.println("Minus clicked for book ID: " + book.getId() + ", current qty: " + cart.getQuantity(book.getId()));
+            cartController.decreaseQuantity(book);
+            System.out.println("After decrease, new qty: " + cart.getQuantity(book.getId()));
             updateCartDisplay();
         });
-        productPanel.add(plusBtn);
 
-        // Price from model
+        plusBtn.addActionListener(e -> {
+            System.out.println("Plus clicked for book ID: " + book.getId() + ", current qty: " + cart.getQuantity(book.getId()));
+            cartController.increaseQuantity(book);
+            System.out.println("After increase, new qty: " + cart.getQuantity(book.getId()));
+            updateCartDisplay();
+        });
+        qtyPanel.add(minusBtn);
+        qtyPanel.add(qtyLabel);
+        qtyPanel.add(plusBtn);
+
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 20, 0, 10);
+        gbc.weightx = 0.2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        productPanel.add(qtyPanel, gbc);
+
+        // Price and Availability
+        JPanel pricePanel = new JPanel(new GridLayout(2, 1, 0, 2));
+        pricePanel.setBackground(Color.WHITE);
+
         JLabel priceLabel = new JLabel(book.getPrice() + " DZD");
         priceLabel.setFont(new Font("Serif", Font.BOLD, 18));
         priceLabel.setForeground(new Color(0, 140, 0));
-        priceLabel.setBounds(640, 60, 120, 35);
-        productPanel.add(priceLabel);
-        
-        JLabel availabilityLabel = new JLabel("Available: 20");
+        priceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        JLabel availabilityLabel = new JLabel("Available: 20"); // TODO: Dynamically fetch availability
         availabilityLabel.setFont(new Font("Serif", Font.PLAIN, 14));
         availabilityLabel.setForeground(new Color(150, 75, 0));
-        availabilityLabel.setBounds(640, 100, 120, 25); // position it below the price
-        productPanel.add(availabilityLabel);
+        availabilityLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
+        pricePanel.add(priceLabel);
+        pricePanel.add(availabilityLabel);
 
-        // Delete Button (tied to controller)
-        JButton deleteBtn = new JButton("X");
-        deleteBtn.setBackground(new Color(200, 20, 20));
-        deleteBtn.setForeground(Color.WHITE);
-        deleteBtn.setBounds(780, 55, 60, 40);
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        gbc.gridheight = 2;
+        gbc.insets = new Insets(0, 20, 0, 10);
+        gbc.weightx = 0.1;
+        gbc.fill = GridBagConstraints.BOTH;
+        productPanel.add(pricePanel, gbc);
+
+        // Delete Button
+        JButton deleteBtn = new JButton("✕"); // Use a nicer symbol
+        styleDeleteButton(deleteBtn);
         deleteBtn.addActionListener(e -> {
             cartController.deleteBook(book);
             updateCartDisplay();
         });
-        productPanel.add(deleteBtn);
+
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        gbc.gridheight = 4;
+        gbc.insets = new Insets(0, 10, 0, 0);
+        gbc.fill = GridBagConstraints.NONE;
+        productPanel.add(deleteBtn, gbc);
 
         return productPanel;
+    }
+
+    /**
+     * Styles quantity buttons for a polished look.
+     */
+    private void styleQuantityButton(JButton btn) {
+        btn.setFont(new Font("Dialog", Font.BOLD, 16));
+        btn.setBackground(new Color(235, 235, 210));
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1));
+        btn.setMinimumSize(new Dimension(40, 40));
+        btn.setPreferredSize(new Dimension(40, 40));
+        btn.setMaximumSize(new Dimension(40, 40));
+        btn.setFocusPainted(false);
+        btn.setFocusable(true);
+    }
+
+    /**
+     * Styles delete button for consistency.
+     */
+    private void styleDeleteButton(JButton btn) {
+        btn.setBackground(new Color(200, 20, 20));
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Serif", Font.BOLD, 16));
+        btn.setBorder(BorderFactory.createLineBorder(new Color(150, 10, 10), 1));
+        btn.setPreferredSize(new Dimension(40, 40));
+        btn.setFocusPainted(false);
+        btn.setRolloverEnabled(true);
     }
 
     /**
@@ -277,9 +374,12 @@ public class CartPanel extends JPanel {
      * Updates total labels from controller/model.
      */
     private void updateTotals() {
-        int totalCart = cartController.getTotalCartValue();
-        totalCartLabel.setText("Total cart : " + totalCart + " DZD");
-        int total = cartController.getGrandTotal();
-        totalLabel.setText("Total : " + total + " DZD");
+        int subtotal = cartController.getTotalCartValue();
+        subtotalLabel.setText("Subtotal: " + subtotal + " DZD");
+
+        int deliveryCost = Cart.DELIVERY_COST;
+
+        int total = subtotal + deliveryCost;
+        totalLabel.setText("Total: " + total + " DZD");
     }
 }
