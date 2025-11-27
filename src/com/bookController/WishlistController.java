@@ -1,4 +1,4 @@
-package com.bookController.java;
+package com.bookController;
 
 public class WishlistController {
 
