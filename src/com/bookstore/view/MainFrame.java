@@ -1,8 +1,10 @@
 package com.bookstore.view;
 
 import com.bookstore.model.Cart;
+
 import com.bookController.BookController;
 import com.bookController.CartController;
+import com.bookstore.utils.InputValidator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,10 +16,13 @@ public class MainFrame extends JFrame {
     private BookController bookController;
     private CartController cartController;
     private CartPanel cartPanel;
+    
+   
 
     // CardLayout for navigation
     private CardLayout cardLayout;
     private JPanel mainPanel;
+   
 
     public MainFrame() {
         // 1. Initialize shared instances first
@@ -39,7 +44,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(new WishlistPanel(this), "WISHLIST");
         mainPanel.add(new OrderFormPanel(this), "ORDERFORM");
         mainPanel.add(new SearchPanel(this), "SEARCH");
-
+      
         // 5. Setup JFrame
         setContentPane(mainPanel);
         setTitle("Bookstore");
