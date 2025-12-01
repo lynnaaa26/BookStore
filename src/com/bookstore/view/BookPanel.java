@@ -2,10 +2,11 @@ package com.bookstore.view;
 
 import com.bookstore.model.Book;
 import com.bookController.BookController;
+import com.bookController.CartController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
+import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,237 +15,218 @@ public class BookPanel extends JPanel {
 
     public BookPanel(MainFrame frame) {
         bookController = frame.getBookController();
-        setLayout(new BorderLayout());
-        setBackground(new Color(245, 245, 220)); // Beige background
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(245, 245, 220)); // Beige
-        header.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        // Add back button to header
-        JButton backButton = new JButton("← Back");
-        backButton.setFont(new Font("Serif", Font.PLAIN, 14));
-        backButton.setForeground(new Color(101, 67, 33)); // Saddle brown
-        backButton.setFocusable(false);
-        backButton.setBorderPainted(false);
-        backButton.setContentAreaFilled(false);
-        backButton.setOpaque(false);
-        backButton.addActionListener(e -> frame.navigateTo("HOME"));
+        setLayout(new BorderLayout(10, 10));
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Header
+        RoundedPanel header = createHeader(frame);
+        add(header, BorderLayout.NORTH);
+
+        // Content
+        RoundedPanel content = new RoundedPanel(12);
+        content.setLayout(new BorderLayout(10, 5));
+        content.setBackground(Color.WHITE);
+        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Main book section
+        RoundedPanel mainBookSection = new RoundedPanel(12);
+        mainBookSection.setLayout(new BorderLayout(15, 0));
+        mainBookSection.setBackground(Color.WHITE);
+        mainBookSection.add(createMainBookContent(frame), BorderLayout.CENTER);
+        content.add(mainBookSection, BorderLayout.NORTH);
+
+        // More books section
+        RoundedPanel moreBooksSection = new RoundedPanel(12);
+        moreBooksSection.setBackground(Color.WHITE);
+        moreBooksSection.setLayout(new BorderLayout());
+        moreBooksSection.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        moreBooksSection.add(createMoreBooksContent(frame), BorderLayout.CENTER);
+        content.add(moreBooksSection, BorderLayout.CENTER);
+
+        add(content, BorderLayout.CENTER);
+    }
+
+    private RoundedPanel createHeader(MainFrame frame) {
+        RoundedPanel header = new RoundedPanel(8);
+        header.setLayout(new BorderLayout());
+        header.setBackground(Color.WHITE);
+        header.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+
+        // Back button
+        JButton backButton = Theme.createIconButton("← Back", e -> frame.navigateTo("HOME"));
         header.add(backButton, BorderLayout.WEST);
+        backButton.setForeground(Color.BLACK);
+
+        // Logo
         JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        logoPanel.setBackground(new Color(245, 245, 220)); // Beige
+        logoPanel.setBackground(Color.WHITE);
         JLabel logoIcon = new JLabel("\uD83D\uDCD6");
         logoIcon.setFont(new Font("Serif", Font.PLAIN, 28));
-        logoIcon.setForeground(new Color(101, 67, 33));
+        logoIcon.setForeground(Color.BLACK);
         JLabel logoText = new JLabel("Story time ★");
         logoText.setFont(new Font("Serif", Font.BOLD, 26));
-        logoText.setForeground(new Color(101, 67, 33));
+        logoText.setForeground(Color.BLACK);
         logoPanel.add(logoIcon);
         logoPanel.add(logoText);
         header.add(logoPanel, BorderLayout.CENTER);
-        // Add cart and wishlist icons to header
+
+        // Right icons
         JPanel rightIcons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        rightIcons.setBackground(new Color(245, 245, 220)); // Beige
-        JButton cartIcon = new JButton("🛒");
-        cartIcon.setFont(new Font("Serif", Font.PLAIN, 20));
-        cartIcon.setForeground(new Color(101, 67, 33));
-        cartIcon.setFocusable(false);
-        cartIcon.setBorderPainted(false);
-        cartIcon.setContentAreaFilled(false);
-        cartIcon.setOpaque(false);
-        cartIcon.addActionListener(e -> frame.navigateTo("CART"));
-        JButton wishlistIcon = new JButton("❤️");
-        wishlistIcon.setFont(new Font("Serif", Font.PLAIN, 20));
-        wishlistIcon.setForeground(new Color(101, 67, 33));
-        wishlistIcon.setFocusable(false);
-        wishlistIcon.setBorderPainted(false);
-        wishlistIcon.setContentAreaFilled(false);
-        wishlistIcon.setOpaque(false);
-        wishlistIcon.addActionListener(e -> frame.navigateTo("WISHLIST"));
+        rightIcons.setBackground(Color.WHITE);
+        JButton wishlistIcon = Theme.createIconButton("❤️", e -> frame.navigateTo("WISHLIST"));
+        wishlistIcon.setForeground(Color.BLACK);
+        JButton cartIcon = Theme.createIconButton("🛒", e -> frame.navigateTo("CART"));
+        cartIcon.setForeground(Color.BLACK);
         rightIcons.add(wishlistIcon);
         rightIcons.add(cartIcon);
         header.add(rightIcons, BorderLayout.EAST);
-        JPanel content = new JPanel(new BorderLayout());
-        content.setBackground(new Color(245, 245, 220)); // Beige
-        JPanel mainBookPanel = new JPanel(new BorderLayout(20, 0));
-        mainBookPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        mainBookPanel.setBackground(new Color(245, 245, 220)); // Beige
-        // Demo main book (ID 1)
+
+        return header;
+    }
+
+    private JPanel createMainBookContent(MainFrame frame) {
+        JPanel mainBookPanel = new JPanel(new BorderLayout(15, 0));
+        mainBookPanel.setBackground(Color.WHITE);
+
         Optional<Book> optionalMainBook = bookController.getBookById(1);
-        Book mainBook = optionalMainBook.orElse(null);
-        if (mainBook == null) {
-            mainBook = new Book(1, "The Yellow Wallpaper", "Charlotte Perkins Gilman", 1000, "/imagess/yellow.jpg");
-        }
-        // Main book image
-        JLabel mainImageLabel = new JLabel();
-        mainImageLabel.setPreferredSize(new Dimension(150, 200));
-        mainImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        // Load main book image
-        ImageIcon mainIcon = loadBookImage(mainBook.getImagePath());
-        if (mainIcon != null && mainIcon.getIconWidth() > 0) {
-            Image scaledMainImage = mainIcon.getImage().getScaledInstance(150, 200, Image.SCALE_SMOOTH);
-            mainImageLabel.setIcon(new ImageIcon(scaledMainImage));
-            mainImageLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1)); // Beige border
-        } else {
-            mainImageLabel.setText("No Image");
-            mainImageLabel.setBackground(new Color(245, 245, 220)); // Beige fallback
-            mainImageLabel.setOpaque(true);
-            mainImageLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1));
-        }
-        // Make main image clickable
+        Book mainBook = optionalMainBook.orElseGet(() -> new Book(
+                1, "The Yellow Wallpaper", "Charlotte Perkins Gilman", 1000, "/imagess/yellow.jpg"));
+
+        // Image panel
+        RoundedPanel imagePanel = new RoundedPanel(8);
+        imagePanel.setPreferredSize(new Dimension(200, 280));
+        imagePanel.setLayout(new BorderLayout());
+        JLabel mainImageLabel = Theme.createBookImageLabel(mainBook.getImagePath(), 200, 280);
+        mainImageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         mainImageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Refresh or handle zoom; for now, do nothing extra
+                // Optional zoom or details
             }
         });
-        mainImageLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        mainBookPanel.add(mainImageLabel, BorderLayout.WEST);
-        JPanel infoPanel = new JPanel();
+        imagePanel.add(mainImageLabel, BorderLayout.CENTER);
+        mainBookPanel.add(imagePanel, BorderLayout.WEST);
+
+        // Info panel
+        RoundedPanel infoPanel = new RoundedPanel(8);
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
         JLabel titleLabel = new JLabel(mainBook.getTitle());
         titleLabel.setFont(new Font("Serif", Font.BOLD, 20));
-        titleLabel.setForeground(new Color(101, 67, 33)); // Saddle brown
+        titleLabel.setForeground(Color.BLACK);
+        infoPanel.add(titleLabel);
+
         JLabel priceLabel = new JLabel(mainBook.getPrice() + " DZD");
         priceLabel.setFont(new Font("Serif", Font.PLAIN, 16));
-        priceLabel.setForeground(new Color(34, 139, 34)); // Green for price
+        priceLabel.setForeground(Theme.GREEN);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(priceLabel);
+
         JTextArea desc = new JTextArea(
-            "“The Yellow Wallpaper” is written in journal entries by a woman who is on vacation with her husband to a big house after giving birth to their daughter. The woman is suffering from postpartum hysteria and secretly wonders if her husband is why she is not getting better."
+                "“The Yellow Wallpaper” is written in journal entries by a woman who is on vacation with her husband to a big house after giving birth to their daughter. The woman is suffering from postpartum hysteria and secretly wonders if her husband is why she is not getting better."
         );
         desc.setLineWrap(true);
         desc.setWrapStyleWord(true);
         desc.setEditable(false);
         desc.setOpaque(false);
         desc.setFont(new Font("Serif", Font.PLAIN, 14));
-        desc.setForeground(new Color(139, 69, 19)); // Darker brown for desc
-        desc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        // Boutons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        desc.setForeground(Color.BLACK);
+        desc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        infoPanel.add(Box.createVerticalStrut(8));
+        infoPanel.add(desc);
+
+        // Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         buttonPanel.setBackground(Color.WHITE);
-        // Capture mainBook for lambda (as before)
-        final Book finalMainBook = mainBook;
+
         JButton addToCart = new JButton("ADD TO CART");
+        addToCart.setBackground(Color.LIGHT_GRAY);
+        addToCart.setForeground(Color.BLACK);
+        addToCart.setFocusPainted(false);
+        addToCart.setFont(new Font("Serif", Font.BOLD, 12));
         addToCart.addActionListener(e -> {
-            frame.getCartController().addToCart(finalMainBook, 1);
+            frame.getCartController().addToCart(mainBook, 1);
             frame.refreshCartPanel();
-            // New: Confirm and navigate to Cart
-            int choice = JOptionPane.showConfirmDialog(
-                this, 
-                "Added " + finalMainBook.getTitle() + " to cart!\nGo to Cart now?", 
-                "Success", 
-                JOptionPane.YES_NO_OPTION, 
-                JOptionPane.INFORMATION_MESSAGE
-            );
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "Added " + mainBook.getTitle() + " to cart!\nGo to Cart now?",
+                    "Success", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
                 frame.navigateTo("CART");
             }
         });
-        addToCart.setFont(new Font("Serif", Font.BOLD, 12));
-        addToCart.setBackground(new Color(220, 220, 200)); // Light beige
-        addToCart.setForeground(new Color(101, 67, 33)); // Saddle brown text
-        addToCart.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1)); // Beige border
+
         JButton addToWishlist = new JButton("ADD TO WISHLIST");
-        addToWishlist.addActionListener(e -> frame.navigateTo("WISHLIST"));
+        addToWishlist.setBackground(new Color(0, 128, 0)); // green
+        addToWishlist.setForeground(Color.WHITE);
+        addToWishlist.setFocusPainted(false);
         addToWishlist.setFont(new Font("Serif", Font.BOLD, 12));
-        addToWishlist.setBackground(new Color(220, 220, 200)); // Light beige
-        addToWishlist.setForeground(new Color(101, 67, 33)); // Saddle brown text
-        addToWishlist.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1)); // Beige border
+        addToWishlist.addActionListener(e -> frame.navigateTo("WISHLIST"));
+
         buttonPanel.add(addToCart);
         buttonPanel.add(addToWishlist);
-        infoPanel.add(titleLabel);
-        infoPanel.add(Box.createVerticalStrut(5));
-        infoPanel.add(priceLabel);
         infoPanel.add(Box.createVerticalStrut(10));
-        infoPanel.add(desc);
-        infoPanel.add(Box.createVerticalStrut(15));
         infoPanel.add(buttonPanel);
+
         mainBookPanel.add(infoPanel, BorderLayout.CENTER);
-        // === More Books ===
-        JPanel moreBooksPanel = new JPanel();
-        moreBooksPanel.setLayout(new BorderLayout());
-        moreBooksPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
-        moreBooksPanel.setBackground(new Color(245, 245, 220)); // Beige
-        JLabel moreLabel = new JLabel("More Books");
-        moreLabel.setFont(new Font("Serif", Font.BOLD, 18));
-        moreLabel.setForeground(new Color(101, 67, 33));
-        JPanel booksList = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
-        booksList.setBackground(new Color(245, 245, 220)); // Beige
-        // Fetch more books (e.g., next 5 after main)
-        List<Book> allBooks = bookController.getAllBooks();
-        List<Book> moreBooks = allBooks.subList(1, Math.min(6, allBooks.size())); // Skip ID 1
-        for (Book b : moreBooks) {
-            JPanel bookCard = createBookCard(b, frame);
-            booksList.add(bookCard);
-        }
-        moreBooksPanel.add(moreLabel, BorderLayout.NORTH);
-        moreBooksPanel.add(new JScrollPane(booksList,
-                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
-        content.add(mainBookPanel, BorderLayout.NORTH);
-        content.add(moreBooksPanel, BorderLayout.CENTER);
-        add(header, BorderLayout.NORTH);
-        add(content, BorderLayout.CENTER);
+        return mainBookPanel;
     }
 
-    private JPanel createBookCard(Book b, MainFrame frame) {
-        JPanel card = new JPanel();
+    private JPanel createMoreBooksContent(MainFrame frame) {
+        RoundedPanel moreBooksPanel = new RoundedPanel(12);
+        moreBooksPanel.setLayout(new BorderLayout());
+        moreBooksPanel.setBackground(Color.WHITE);
+
+        JLabel moreLabel = new JLabel("More Books");
+        moreLabel.setFont(new Font("Serif", Font.BOLD, 18));
+        moreLabel.setForeground(Color.BLACK);
+        moreBooksPanel.add(moreLabel, BorderLayout.NORTH);
+
+        JPanel booksList = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 8));
+        booksList.setBackground(Color.WHITE);
+        List<Book> allBooks = bookController.getAllBooks();
+        List<Book> moreBooks = allBooks.subList(1, Math.min(7, allBooks.size()));
+        for (Book b : moreBooks) {
+            RoundedPanel bookCard = createBookCard(b, frame);
+            booksList.add(bookCard);
+        }
+
+        JScrollPane scroll = new JScrollPane(booksList, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setBackground(Color.WHITE);
+        scroll.setBorder(null);
+        scroll.getViewport().setOpaque(false);
+        moreBooksPanel.add(scroll, BorderLayout.CENTER);
+
+        return moreBooksPanel;
+    }
+
+    private RoundedPanel createBookCard(Book b, MainFrame frame) {
+        RoundedPanel card = new RoundedPanel(8);
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setPreferredSize(new Dimension(150, 230));
+        card.setPreferredSize(new Dimension(140, 220));
         card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 200), 1)); // Light beige border
+        card.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 frame.navigateTo("BOOKS");
             }
         });
-        card.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        // Image panel/label
-        JLabel imgLabel = new JLabel();
-        imgLabel.setPreferredSize(new Dimension(130, 160));
-        imgLabel.setMaximumSize(new Dimension(130, 160));
+
+        JLabel imgLabel = Theme.createBookImageLabel(b.getImagePath(), 120, 150);
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        // Load image
-        ImageIcon icon = loadBookImage(b.getImagePath());
-        if (icon != null && icon.getIconWidth() > 0) {
-            Image scaledImage = icon.getImage().getScaledInstance(130, 160, Image.SCALE_SMOOTH);
-            imgLabel.setIcon(new ImageIcon(scaledImage));
-            imgLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1)); // Beige border
-        } else {
-            imgLabel.setText("No Image");
-            imgLabel.setBackground(new Color(245, 245, 220)); // Beige fallback
-            imgLabel.setOpaque(true);
-            imgLabel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 180), 1));
-        }
-        card.add(Box.createVerticalStrut(10));
+        card.add(Box.createVerticalStrut(5));
         card.add(imgLabel);
-        card.add(Box.createVerticalStrut(10));
-        JLabel label = new JLabel("<html><center>" + b.getTitle().replaceAll("\n", "<br/>") + "<br/>" + b.getPrice() + " DZD" + "</center></html>");
-        label.setFont(new Font("Serif", Font.PLAIN, 13));
-        label.setForeground(new Color(101, 67, 33));
+        card.add(Box.createVerticalStrut(5));
+
+        JLabel label = new JLabel("<html><center>" + b.getTitle().replaceAll("\n", "<br/>") +
+                "<br/>" + b.getPrice() + " DZD" + "</center></html>");
+        label.setFont(new Font("Serif", Font.BOLD, 12)); // Bold title in card
+        label.setForeground(Color.BLACK);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         card.add(label);
+
         return card;
-    }
-
-    private ImageIcon loadBookImage(String path) {
-        try {
-            URL imageUrl = getClass().getResource(path);
-            if (imageUrl != null) {
-                return new ImageIcon(imageUrl);
-            }
-        } catch (Exception e) {
-            System.out.println("More book image not found: " + path);
-        }
-        return null;
-    }
-
-    private static JButton createHeaderButton(String text) {
-        JButton b = new JButton(text);
-        b.setFont(new Font("Serif", Font.PLAIN, 18));
-        b.setFocusable(false);
-        b.setBorderPainted(false);
-        b.setContentAreaFilled(false);
-        b.setOpaque(false);
-        b.setPreferredSize(new Dimension(40, 30));
-        return b;
     }
 }
