@@ -26,6 +26,11 @@ public class BookRepository {
         books.add(new Book(8, "The Girl on the Train", "Paula Hawkins", 1600, "/imagess/The_Girl_on_the_Train.jpg"));
         books.add(new Book(9, "Sense and Sensibility", "Jane Austen", 1300, "/imagess/sense.jpg"));
         books.add(new Book(10, "Harry Potter Pack", "J.K. Rowling", 12000, "/imagess/potter.jpg"));
+        books.add(new Book(10, "The Poppy War", "Rebecca F. Kuang", 12000, "/imagess/poopy.jpg"));
+        books.add(new Book(10, "Moby Dick", "Herman Melville", 12000, "/imagess/moby.jpg"));
+        books.add(new Book(10, "the picture of dorian gray", "oscar wilde", 12000, "/imagess/gray.jpg"));
+        books.add(new Book(10, "Wuthering helights", "emily bronte", 12000, "/imagess/emily.jpg"));
+        
 
         // ADD YOUR NEW BOOKS HERE (example):
         // books.add(new Book(11, "1984", "George Orwell", 1100, "/imagess/1984.jpg"));

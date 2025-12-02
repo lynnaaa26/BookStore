@@ -2,6 +2,7 @@ package com.bookstore.view;
 
 import com.bookstore.utils.InputValidator;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class OrderFormPanel extends JPanel {
@@ -12,8 +13,8 @@ public class OrderFormPanel extends JPanel {
     public OrderFormPanel(MainFrame frame) {
         this.frame = frame;
         setLayout(new BorderLayout(20, 20));
-        setBackground(Theme.BEIGE);
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBackground(Color.WHITE);
+        setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // Header
         RoundedPanel header = createHeader();
@@ -21,19 +22,20 @@ public class OrderFormPanel extends JPanel {
 
         // Title
         JLabel title = new JLabel("YOUR ORDER");
-        title.setFont(new Font("Serif", Font.BOLD, 20));
-        title.setForeground(Theme.SADDLE_BROWN);
+        title.setFont(new Font("SansSerif", Font.BOLD, 28)); // Larger, modern font
+        title.setForeground(Color.BLACK);
         title.setHorizontalAlignment(SwingConstants.CENTER);
-        title.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
-        add(title, BorderLayout.NORTH); // Now above form
+        title.setBorder(new EmptyBorder(20, 0, 30, 0)); // More space
+        add(title, BorderLayout.NORTH);
 
-        // Form container
-        RoundedPanel formContainer = new RoundedPanel(12);
+        // Form container (fills center)
+        RoundedPanel formContainer = new RoundedPanel(16); // Bigger rounding
         formContainer.setLayout(new BorderLayout());
-        formContainer.setBackground(Theme.BEIGE);
+        formContainer.setBackground(Color.WHITE);
+        formContainer.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 
         RoundedPanel formPanel = createFormPanel();
-        formContainer.add(formPanel, BorderLayout.NORTH);
+        formContainer.add(formPanel, BorderLayout.CENTER);
 
         // Buttons panel
         RoundedPanel buttonPanel = createButtonPanel();
@@ -43,21 +45,25 @@ public class OrderFormPanel extends JPanel {
     }
 
     private RoundedPanel createHeader() {
-        RoundedPanel header = new RoundedPanel(8);
+        RoundedPanel header = new RoundedPanel(12); // Bigger rounding
         header.setLayout(new BorderLayout());
-        header.setBackground(Theme.BEIGE);
-        header.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        header.setBackground(Color.WHITE);
+        header.setBorder(new EmptyBorder(0, 0, 20, 0));
 
-        JLabel logo = new JLabel("📖 Story time★");
-        logo.setFont(new Font("Serif", Font.ITALIC, 20));
-        logo.setForeground(Theme.SADDLE_BROWN);
+        JLabel logo = new JLabel("📖 Story time ★"); // Added space
+        logo.setFont(new Font("SansSerif", Font.ITALIC, 24)); // Larger, modern
+        logo.setForeground(Color.BLACK);
         header.add(logo, BorderLayout.WEST);
 
-        JPanel rightIcons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        rightIcons.setBackground(Theme.BEIGE);
+        JPanel rightIcons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0)); // More space
+        rightIcons.setBackground(Color.WHITE);
+
         JButton searchBtn = Theme.createIconButton("🔍", e -> frame.navigateTo("SEARCH"));
+        searchBtn.setFont(new Font("SansSerif", Font.BOLD, 18)); // Larger
         JButton favBtn = Theme.createIconButton("♡", e -> frame.navigateTo("WISHLIST"));
+        favBtn.setFont(new Font("SansSerif", Font.BOLD, 18)); // Larger
         JButton cartBtn = Theme.createIconButton("🛒", e -> frame.navigateTo("CART"));
+        cartBtn.setFont(new Font("SansSerif", Font.BOLD, 18)); // Larger
         rightIcons.add(searchBtn);
         rightIcons.add(favBtn);
         rightIcons.add(cartBtn);
@@ -65,8 +71,9 @@ public class OrderFormPanel extends JPanel {
 
         // Back button below logo
         JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        backPanel.setBackground(Theme.BEIGE);
+        backPanel.setBackground(Color.WHITE);
         JButton backBtn = Theme.createIconButton("← Back", e -> frame.navigateTo("CART"));
+        backBtn.setFont(new Font("SansSerif", Font.BOLD, 16)); // Larger
         backPanel.add(backBtn);
         header.add(backPanel, BorderLayout.SOUTH);
 
@@ -74,88 +81,90 @@ public class OrderFormPanel extends JPanel {
     }
 
     private RoundedPanel createFormPanel() {
-        RoundedPanel formPanel = new RoundedPanel(8);
+        RoundedPanel formPanel = new RoundedPanel(12); // Bigger rounding
         formPanel.setLayout(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
-        formPanel.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER, 1));
-        formPanel.setPreferredSize(new Dimension(350, 220));
-
+        formPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1)); // Consistent border
+        formPanel.setPreferredSize(new Dimension(450, 400)); // Taller for stacked fields
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);
+        gbc.insets = new Insets(15, 20, 15, 20); // More space
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.gridwidth = 1;
 
         // First name
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel firstNameLabel = new JLabel("FIRST NAME");
-        firstNameLabel.setFont(new Font("Serif", Font.BOLD, 12));
-        firstNameLabel.setForeground(Theme.SADDLE_BROWN);
+        firstNameLabel.setFont(new Font("SansSerif", Font.BOLD, 16)); // Larger
+        firstNameLabel.setForeground(Color.BLACK);
         formPanel.add(firstNameLabel, gbc);
-        gbc.gridx = 1;
-        firstNameField = new JTextField(15);
-        firstNameField.setFont(new Font("Serif", Font.PLAIN, 12));
-        firstNameField.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER, 1));
+        gbc.gridy = 1;
+        firstNameField = new JTextField(30); // Full width
+        firstNameField.setFont(new Font("SansSerif", Font.BOLD, 14)); // Bold input
+        firstNameField.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         formPanel.add(firstNameField, gbc);
 
         // Last name
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridy = 2;
         JLabel lastNameLabel = new JLabel("LAST NAME");
-        lastNameLabel.setFont(new Font("Serif", Font.BOLD, 12));
-        lastNameLabel.setForeground(Theme.SADDLE_BROWN);
+        lastNameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lastNameLabel.setForeground(Color.BLACK);
         formPanel.add(lastNameLabel, gbc);
-        gbc.gridx = 1;
-        lastNameField = new JTextField(15);
-        lastNameField.setFont(new Font("Serif", Font.PLAIN, 12));
-        lastNameField.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER, 1));
+        gbc.gridy = 3;
+        lastNameField = new JTextField(30); // Full width
+        lastNameField.setFont(new Font("SansSerif", Font.BOLD, 14)); // Bold input
+        lastNameField.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         formPanel.add(lastNameField, gbc);
 
         // Phone
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridy = 4;
         JLabel phoneLabel = new JLabel("PHONE NUMBER");
-        phoneLabel.setFont(new Font("Serif", Font.BOLD, 12));
-        phoneLabel.setForeground(Theme.SADDLE_BROWN);
+        phoneLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        phoneLabel.setForeground(Color.BLACK);
         formPanel.add(phoneLabel, gbc);
-        gbc.gridx = 1;
-        phoneField = new JTextField("+213", 15);
-        phoneField.setFont(new Font("Serif", Font.PLAIN, 12));
-        phoneField.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER, 1));
+        gbc.gridy = 5;
+        phoneField = new JTextField("+213", 30); // Full width
+        phoneField.setFont(new Font("SansSerif", Font.BOLD, 14)); // Bold input
+        phoneField.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         formPanel.add(phoneField, gbc);
 
         // Address
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridy = 6;
         JLabel addressLabel = new JLabel("DELIVERY ADDRESS");
-        addressLabel.setFont(new Font("Serif", Font.BOLD, 12));
-        addressLabel.setForeground(Theme.SADDLE_BROWN);
+        addressLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        addressLabel.setForeground(Color.BLACK);
         formPanel.add(addressLabel, gbc);
-        gbc.gridx = 1; gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        addressField = new JTextField(15);
-        addressField.setFont(new Font("Serif", Font.PLAIN, 12));
-        addressField.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER, 1));
+        gbc.gridy = 7;
+        addressField = new JTextField(30); // Full width
+        addressField.setFont(new Font("SansSerif", Font.BOLD, 14)); // Bold input
+        addressField.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         formPanel.add(addressField, gbc);
 
         // Error label
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2;
+        gbc.gridy = 8;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         errorLabel = new JLabel("");
         errorLabel.setForeground(Color.RED);
-        errorLabel.setFont(new Font("Serif", Font.PLAIN, 10));
+        errorLabel.setFont(new Font("SansSerif", Font.PLAIN, 12)); // Larger
         formPanel.add(errorLabel, gbc);
 
         return formPanel;
     }
 
     private RoundedPanel createButtonPanel() {
-        RoundedPanel buttonPanel = new RoundedPanel(8);
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        buttonPanel.setBackground(Theme.BEIGE);
-
-        JButton cancelBtn = Theme.createThemedButton("CANCEL", 13, e -> frame.navigateTo("CART"));
-        JButton checkoutBtn = Theme.createThemedButton("CHECKOUT", 13, e -> handleCheckout());
-
+        RoundedPanel buttonPanel = new RoundedPanel(12); // Bigger rounding
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15)); // More space
+        buttonPanel.setBackground(Color.WHITE);
+        JButton cancelBtn = Theme.createThemedButton("CANCEL", 16, e -> frame.navigateTo("CART")); // Larger font
+        cancelBtn.setBackground(Color.BLACK); // Black background
+        cancelBtn.setForeground(Color.WHITE); // White text
+        JButton checkoutBtn = Theme.createThemedButton("CHECKOUT", 16, e -> handleCheckout()); // Larger font
+        checkoutBtn.setBackground(Color.BLACK); // Black background
+        checkoutBtn.setForeground(Color.WHITE); // White text
         buttonPanel.add(cancelBtn);
         buttonPanel.add(checkoutBtn);
-
         return buttonPanel;
     }
 
@@ -165,14 +174,11 @@ public class OrderFormPanel extends JPanel {
         String fullName = firstName + " " + lastName;
         String phone = phoneField.getText().trim();
         String address = addressField.getText().trim();
-
         if (firstName.isEmpty() || lastName.isEmpty() || address.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill all required fields (name, phone, address).", "Missing Input", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         errorLabel.setText("");
-
         if (!InputValidator.validateName(fullName)) {
             firstNameField.requestFocus();
             firstNameField.selectAll();
@@ -188,10 +194,8 @@ public class OrderFormPanel extends JPanel {
             addressField.selectAll();
             return;
         }
-
         String successMsg = String.format("Order confirmed :) for %s!\nPhone: %s\nAddress: %s\nRedirecting to home...", fullName, phone, address);
         JOptionPane.showMessageDialog(this, successMsg, "Order Placed Successfully ! ", JOptionPane.INFORMATION_MESSAGE);
-
         clearFields();
         frame.navigateTo("HOME");
     }

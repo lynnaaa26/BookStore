@@ -15,6 +15,7 @@ public class Book {
         this.price = price;
         this.imagePath = imagePath;
     }
+    
 
     // Getters and Setters
     public int getId() { return id; }

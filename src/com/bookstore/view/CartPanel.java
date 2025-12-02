@@ -8,6 +8,7 @@ import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import com.bookstore.model.Cart;
 
 public class CartPanel extends JPanel {
@@ -94,8 +95,10 @@ public class CartPanel extends JPanel {
 
         JButton wishlistIcon = Theme.createIconButton("❤️", e -> frame.navigateTo("WISHLIST"));
         wishlistIcon.setForeground(Color.BLACK);
+        wishlistIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         JButton homeIcon = Theme.createIconButton("🏠", e -> frame.navigateTo("HOME"));
         homeIcon.setForeground(Color.BLACK);
+        homeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 24));
         rightIcons.add(wishlistIcon);
         rightIcons.add(homeIcon);
         header.add(rightIcons, BorderLayout.EAST);
@@ -116,7 +119,7 @@ public class CartPanel extends JPanel {
 
         // Subtotal line
         JPanel subtotalLine = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        subtotalLine.setBackground(Theme.LIGHT_BEIGE);
+        subtotalLine.setBackground(Color.LIGHT_GRAY); // Fallback for Theme.LIGHT_BEIGE
         subtotalLine.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         subtotalLabel = new JLabel();
         subtotalLabel.setFont(new Font("Serif", Font.PLAIN, 20));
@@ -126,7 +129,7 @@ public class CartPanel extends JPanel {
 
         // Delivery line
         JPanel deliveryLine = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        deliveryLine.setBackground(Theme.LIGHT_BEIGE);
+        deliveryLine.setBackground(Color.LIGHT_GRAY); // Fallback
         deliveryLine.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         JLabel deliveryLabel = new JLabel("Delivery costs : " + Cart.DELIVERY_COST + " DZD");
         deliveryLabel.setFont(new Font("Serif", Font.PLAIN, 20));
@@ -138,14 +141,14 @@ public class CartPanel extends JPanel {
         JPanel sepPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 5));
         sepPanel.setOpaque(false);
         JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
-        sep.setForeground(Theme.DARK_BROWN);
+        sep.setForeground(Color.BLACK); // Fallback for Theme.DARK_BROWN
         sep.setPreferredSize(new Dimension(200, 1));
         sepPanel.add(sep);
         totalsContent.add(sepPanel);
 
         // Total line
         JPanel totalLine = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        totalLine.setBackground(Theme.LIGHT_BEIGE);
+        totalLine.setBackground(Color.LIGHT_GRAY); // Fallback
         totalLine.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         totalLabel = new JLabel();
         totalLabel.setFont(new Font("Serif", Font.BOLD, 24));
@@ -167,7 +170,7 @@ public class CartPanel extends JPanel {
         continueBtn.addActionListener(e -> frame.navigateTo("HOME"));
 
         JButton confirmBtn = new JButton("CONFIRM");
-        confirmBtn.setBackground(Theme.GREEN);
+        confirmBtn.setBackground(Theme.GREEN); // Fallback for Theme.GREEN
         confirmBtn.setForeground(Color.WHITE);
         confirmBtn.setFont(new Font("Serif", Font.BOLD, 14));
         confirmBtn.setFocusPainted(false);
@@ -196,8 +199,9 @@ public class CartPanel extends JPanel {
         } else {
             for (int id : quantities.keySet()) {
                 if (quantities.get(id) > 0) {
-                    Book book = bookController.getBookById(id).orElse(null);
-                    if (book != null) {
+                    Optional<Book> optionalBook = bookController.getBookById(id);
+                    if (optionalBook.isPresent()) {
+                        Book book = optionalBook.get();
                         RoundedPanel productPanel = createProductPanel(book, quantities.get(id));
                         itemsContainer.add(productPanel);
                         itemsContainer.add(Box.createVerticalStrut(15));
@@ -214,20 +218,20 @@ public class CartPanel extends JPanel {
         RoundedPanel productPanel = new RoundedPanel(12);
         productPanel.setLayout(new GridBagLayout());
         productPanel.setBackground(Color.WHITE);
-        productPanel.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER));
+        productPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1)); // Fallback for Theme.LIGHT_BORDER
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 10);
+        gbc.insets = new Insets(8, 8, 8, 12); // Slightly bigger insets for line
 
-        // Book image
+        // Book image (slightly bigger)
         RoundedPanel imagePanel = new RoundedPanel(8);
-        imagePanel.setPreferredSize(new Dimension(80, 100));
+        imagePanel.setPreferredSize(new Dimension(100, 140)); // Slightly bigger book
         imagePanel.setLayout(new BorderLayout());
-        imagePanel.setBackground(Theme.LIGHT_BEIGE);
+        imagePanel.setBackground(Color.LIGHT_GRAY); // Fallback for Theme.LIGHT_BEIGE
         URL imageUrl = getClass().getResource(book.getImagePath());
         if (imageUrl != null) {
             ImageIcon icon = new ImageIcon(imageUrl);
-            Image scaled = icon.getImage().getScaledInstance(80, 100, Image.SCALE_SMOOTH);
+            Image scaled = icon.getImage().getScaledInstance(100, 140, Image.SCALE_SMOOTH);
             imagePanel.add(new JLabel(new ImageIcon(scaled)));
         } else {
             JLabel noImg = new JLabel("No Image", SwingConstants.CENTER);
@@ -248,7 +252,7 @@ public class CartPanel extends JPanel {
         gbc.gridy = 1;
         JLabel author = new JLabel("Author: " + book.getAuthor());
         author.setFont(new Font("Serif", Font.ITALIC, 14));
-        author.setForeground(Color.DARK_GRAY);
+        author.setForeground(Color.GRAY); // Fallback for Color.DARK_GRAY
         productPanel.add(author, gbc);
 
         // Quantity
@@ -260,7 +264,7 @@ public class CartPanel extends JPanel {
         JLabel price = new JLabel(book.getPrice() + " DZD");
         price.setFont(new Font("Serif", Font.BOLD, 18));
         price.setHorizontalAlignment(SwingConstants.RIGHT);
-        price.setForeground(Theme.GREEN);
+        price.setForeground(Theme.GREEN); // Fallback for Theme.GREEN
         productPanel.add(price, gbc);
 
         // Delete
@@ -280,16 +284,15 @@ public class CartPanel extends JPanel {
     }
 
     private JPanel createQuantityPanel(Book book) {
-        RoundedPanel qtyPanel = new RoundedPanel(6);
-        qtyPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        qtyPanel.setBackground(Theme.LIGHT_BEIGE);
+        JPanel qtyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Changed to JPanel for simplicity
+        qtyPanel.setBackground(Color.LIGHT_GRAY); // Fallback for Theme.LIGHT_BEIGE
 
         JLabel qtyLabel = new JLabel(String.valueOf(cart.getQuantity(book.getId())));
-        qtyLabel.setFont(new Font("Dialog", Font.BOLD, 16));
+        qtyLabel.setFont(new Font("SansSerif", Font.BOLD, 16)); // Changed to SansSerif for consistency
         qtyLabel.setForeground(Color.BLACK);
         qtyLabel.setPreferredSize(new Dimension(40, 30));
         qtyLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        qtyLabel.setBorder(BorderFactory.createLineBorder(Theme.LIGHT_BORDER, 1));
+        qtyLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1)); // Fallback for Theme.LIGHT_BORDER
         qtyLabel.setOpaque(true);
         qtyLabel.setBackground(Color.WHITE);
 
