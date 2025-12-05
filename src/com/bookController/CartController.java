@@ -11,7 +11,7 @@ public class CartController {
         this.cart = cart;
     }
 
-    // adding book to cart 
+    // adding book to cart
     public void addToCart(Book book, int quantity) {
         if (quantity > 0) {
             cart.addBook(book, quantity);
@@ -24,9 +24,8 @@ public class CartController {
     }
 
     // decrease quantity
- 
     public void decreaseQuantity(Book book) {
-        //simply call removeBook 
+        //simply call removeBook
         // to handle removing the item completely if the quantity becomes 0.
         cart.removeBook(book, 1);
     }

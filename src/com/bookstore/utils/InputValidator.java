@@ -24,13 +24,13 @@ public class InputValidator {
     public static boolean validateName(String name) {
         if (name == null || name.trim().isEmpty() || !name.matches("[a-zA-Z\\s]+")) {
             JOptionPane.showMessageDialog(null, 
-                "Name must contain only letters and spaces (e.g., lyna Doe). No numbers or special chars!!!!", 
+                "Name must contain only letters and spaces (e.g., lyna Doe). No numbers or special chars!", 
                 "Name Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         if (name.trim().length() < 2 || name.trim().length() > 50) {
             JOptionPane.showMessageDialog(null, 
-                "Name must be 2-50 characters long!!", 
+                "Name must be 2-50 characters long!", 
                 "Name Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }

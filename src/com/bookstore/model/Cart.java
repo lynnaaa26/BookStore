@@ -1,5 +1,6 @@
 package com.bookstore.model;
 
+import com.bookstore.storage.CartFileStorage; // *** AJOUT : For auto-saving on changes ***
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,9 +16,10 @@ public class Cart {
     public void addBook(Book book, int quantity) {
         int currentQty = bookQuantities.getOrDefault(book.getId(), 0);
         bookQuantities.put(book.getId(), currentQty + quantity);
+        CartFileStorage.save(this);  // *** AJOUT : Auto-save after change ***
     }
 
-    // remove or decrease quantitya
+    // remove or decrease quantity
     public void removeBook(Book book, int quantity) {
         int currentQty = bookQuantities.getOrDefault(book.getId(), 0);
         if (currentQty > quantity) {
@@ -25,11 +27,13 @@ public class Cart {
         } else {
             bookQuantities.remove(book.getId());
         }
+        CartFileStorage.save(this);  // *** AJOUT : Auto-save after change ***
     }
 
     // delete book entirely
     public void deleteBook(Book book) {
         bookQuantities.remove(book.getId());
+        CartFileStorage.save(this);  // *** AJOUT : Auto-save after change ***
     }
 
     // get total cart value ,now fetches prices from BookRepository
@@ -63,5 +67,10 @@ public class Cart {
     // get all book ids in cart
     public Map<Integer, Integer> getBookQuantities() {
         return new HashMap<>(bookQuantities);
+    }
+
+    public Map getItems() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

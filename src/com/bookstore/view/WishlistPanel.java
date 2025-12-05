@@ -2,15 +2,21 @@ package com.bookstore.view;
 
 import com.bookstore.model.Book;
 import com.bookController.BookController;
+import com.bookController.WishlistController;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public class WishlistPanel extends JPanel {
+
     private BookController bookController;
+    private WishlistController wishlistController;
 
     public WishlistPanel(MainFrame frame) {
         bookController = frame.getBookController();
+        wishlistController = frame.getWishlistController(); // Get the WishlistController from MainFrame
+
         setLayout(new BorderLayout(30, 30));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
@@ -21,7 +27,7 @@ public class WishlistPanel extends JPanel {
         header.setBackground(Color.WHITE);
 
         JLabel title = new JLabel("♡ Wishlist", SwingConstants.LEFT);
-        title.setFont(new Font("Serif", Font.BOLD, 36)); // Bigger and prominent
+        title.setFont(new Font("Serif", Font.BOLD, 36));
         title.setForeground(Color.BLACK);
         header.add(title, BorderLayout.WEST);
 
@@ -29,13 +35,13 @@ public class WishlistPanel extends JPanel {
         rightIcons.setBackground(Color.WHITE);
 
         JButton searchBtn = Theme.createIconButton("🔍", e -> frame.navigateTo("SEARCH"));
-        searchBtn.setFont(new Font("Serif", Font.PLAIN, 28)); // Bigger icon
+        searchBtn.setFont(new Font("Serif", Font.PLAIN, 28));
         searchBtn.setForeground(Color.BLACK);
         searchBtn.setBackground(Color.WHITE);
         searchBtn.setPreferredSize(new Dimension(50, 50));
 
         JButton cartBtn = Theme.createIconButton("🛒", e -> frame.navigateTo("CART"));
-        cartBtn.setFont(new Font("Serif", Font.PLAIN, 28)); // Bigger icon
+        cartBtn.setFont(new Font("Serif", Font.PLAIN, 28));
         cartBtn.setForeground(Color.BLACK);
         cartBtn.setBackground(Color.WHITE);
         cartBtn.setPreferredSize(new Dimension(50, 50));
@@ -46,22 +52,34 @@ public class WishlistPanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
+        // --- Initial content ---
+        rebuildWishlistContent(frame);
+    }
+
+    // Rebuilds the wishlist dynamically
+    public void rebuildWishlistContent(MainFrame frame) {
+        // Remove old content except header
+        Component[] components = getComponents();
+        for (Component comp : components) {
+            if (comp != null && comp != getComponent(0)) { // 0 = header
+                remove(comp);
+            }
+        }
+
         // --- BOOKS CONTAINER ---
         JPanel booksContainer = new JPanel();
         booksContainer.setLayout(new BoxLayout(booksContainer, BoxLayout.X_AXIS));
         booksContainer.setBackground(Color.WHITE);
         booksContainer.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
-        booksContainer.add(Box.createHorizontalGlue()); // Center alignment
+        booksContainer.add(Box.createHorizontalGlue());
 
-        List<Book> allBooks = bookController.getAllBooks();
-        List<Book> wishlistBooks = allBooks.subList(0, Math.min(5, allBooks.size())); // Demo wishlist
-
+        List<Book> wishlistBooks = wishlistController.getAllBooks(); // Get books from WishlistController
         for (Book b : wishlistBooks) {
             RoundedPanel bookPanel = createBookCard(b, frame);
             booksContainer.add(bookPanel);
             booksContainer.add(Box.createHorizontalStrut(30));
         }
-        booksContainer.add(Box.createHorizontalGlue()); // Center alignment
+        booksContainer.add(Box.createHorizontalGlue());
 
         JScrollPane scroll = new JScrollPane(booksContainer,
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER,
@@ -81,24 +99,29 @@ public class WishlistPanel extends JPanel {
         backBtn.setForeground(Color.BLACK);
         backBtn.setBackground(Color.WHITE);
         backBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        backBtn.setPreferredSize(new Dimension(180, 50)); // Bigger button
+        backBtn.setPreferredSize(new Dimension(180, 50));
 
         footer.add(backBtn);
         add(footer, BorderLayout.SOUTH);
+
+        revalidate();
+        repaint();
     }
 
+    // Creates a book card for the wishlist
     private RoundedPanel createBookCard(Book b, MainFrame frame) {
         RoundedPanel bookPanel = new RoundedPanel(16);
         bookPanel.setLayout(new BoxLayout(bookPanel, BoxLayout.Y_AXIS));
         bookPanel.setBackground(Color.WHITE);
         bookPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        bookPanel.setPreferredSize(new Dimension(220, 350)); // Bigger card
+        bookPanel.setPreferredSize(new Dimension(220, 350));
         bookPanel.setMaximumSize(new Dimension(220, 350));
         bookPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         bookPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
         bookPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                frame.navigateTo("BOOKS");
+                frame.showBookDetails(b); // Opens book details
             }
         });
 
@@ -110,7 +133,7 @@ public class WishlistPanel extends JPanel {
         bookPanel.add(Box.createVerticalStrut(20));
 
         JLabel nameLabel = new JLabel(b.getTitle(), SwingConstants.CENTER);
-        nameLabel.setFont(new Font("Serif", Font.BOLD, 18)); // Bigger font
+        nameLabel.setFont(new Font("Serif", Font.BOLD, 18));
         nameLabel.setForeground(Color.BLACK);
         bookPanel.add(nameLabel);
 

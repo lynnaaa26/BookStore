@@ -31,16 +31,16 @@ public class HomePanel extends JPanel {
         List<Book> allBooks = bookController.getAllBooks();
 
         // --- Best Sellers Section ---
-        container.add(createSectionTitle("★ Best Sellers of the Month ★"));
+        container.add(createSectionTitle("★ Best Sellers of the Month! ★"));
         List<Book> bestsellers = allBooks.subList(0, Math.min(4, allBooks.size()));
         container.add(createBooksRow(bestsellers, mainFrame));
 
         // --- Genre Sections (classified based on books) ---
         String[][] genres = {
-            {"Classics", "0", "6"},    // The Yellow Wallpaper, To Kill a Mockingbird, We Have Always Lived in the Castle, Mrs Dalloway, Sense and Sensibility, Moby Dick
-            {"Fiction", "6", "10"},    // Cloud Atlas, The Girl on the Train, Harry Potter Pack, The Poppy War
-            {"Horror", "4", "6"},      // Frankenstein, Fahrenheit 451
-            {"Romance", "13", "14"}    // Wuthering Heights
+        		  {"Classics", "0", "6"},    // The Yellow Wallpaper, To Kill a Mockingbird, We Have Always Lived in the Castle, Mrs Dalloway, Sense and Sensibility, Moby Dick
+                  {"Fiction", "6", "10"},    // Cloud Atlas, The Girl on the Train, Harry Potter Pack, The Poppy War
+                  {"Horror", "4", "6"},      // Frankenstein, Fahrenheit 451
+                  {"Romance", "13", "14"}    // Wuthering Heights
             // Add more sections if needed
         };
 
@@ -101,7 +101,7 @@ public class HomePanel extends JPanel {
 
         return topPanel;
     }
-
+    
     private JLabel createSectionTitle(String title) {
         JLabel label = new JLabel(title);
         label.setFont(new Font("SansSerif", Font.BOLD, 22));
@@ -133,9 +133,10 @@ public class HomePanel extends JPanel {
         bookPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent evt) {
-                mainFrame.navigateTo("BOOKS");
+                mainFrame.showBookDetails(b);  // <-- nouvelle ligne
             }
         });
+
 
         JLabel imageLabel = Theme.createBookImageLabel(b.getImagePath(), 140, 200);
         imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -163,6 +164,7 @@ public class HomePanel extends JPanel {
         addBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         addBtn.addActionListener(e -> {
             mainFrame.getCartController().addToCart(b, 1);
+            mainFrame.refreshCartPanel(); // <-- Rafraîchit le CartPanel
             JOptionPane.showMessageDialog(this, "Added " + b.getTitle() + " to cart!", "Success", JOptionPane.INFORMATION_MESSAGE);
         });
         bookPanel.add(addBtn);

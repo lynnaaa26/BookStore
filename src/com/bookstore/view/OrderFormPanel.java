@@ -158,10 +158,11 @@ public class OrderFormPanel extends JPanel {
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15)); // More space
         buttonPanel.setBackground(Color.WHITE);
         JButton cancelBtn = Theme.createThemedButton("CANCEL", 16, e -> frame.navigateTo("CART")); // Larger font
-        cancelBtn.setBackground(Color.BLACK); // Black background
-        cancelBtn.setForeground(Color.WHITE); // White text
+        cancelBtn.setBackground(Color.LIGHT_GRAY); // Gray background
+        cancelBtn.setForeground(Color.BLACK); // White text
         JButton checkoutBtn = Theme.createThemedButton("CHECKOUT", 16, e -> handleCheckout()); // Larger font
-        checkoutBtn.setBackground(Color.BLACK); // Black background
+        checkoutBtn.setBackground(new Color(0, 128, 0));
+        //checkoutBtn.setBackground(Color.BLACK); // Black background
         checkoutBtn.setForeground(Color.WHITE); // White text
         buttonPanel.add(cancelBtn);
         buttonPanel.add(checkoutBtn);
